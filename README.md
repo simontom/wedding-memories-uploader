@@ -71,9 +71,48 @@ A mobile-friendly, frictionless web application for guests to upload photos and 
 
 ## 🔄 Making Future Updates
 
-If you change `Code.gs` or `Index.html` in Apps Script:
+### Option A: Automated CLI Deployment (Recommended)
 
-1. Click **Deploy** > **Manage deployments**.
-2. Click the **Pencil (Edit)** icon on your deployment.
-3. Change **Version** to **New version**.
-4. Click **Deploy** (your live link and QR code will remain the same).
+You can push code and update your deployment directly from the terminal without opening the Google Apps Script browser editor:
+
+1. **One-Time Setup:**
+   * Enable the Google Apps Script API at [script.google.com/home/usersettings](https://script.google.com/home/usersettings).
+   * Log in to Google via terminal:
+     ```bash
+     npx clasp login
+     ```
+   * Copy `.env.example` to `.env`:
+     ```bash
+     cp .env.example .env
+     ```
+   * Fill in your `SCRIPT_ID`, `TARGET_FOLDER_ID`, and optional `DEPLOYMENT_ID` in `.env`.
+
+2. **Deploy with One Command:**
+   ```bash
+   npm run deploy
+   ```
+   *This automatically replaces the `TARGET_FOLDER_ID` in a staging build (keeping your tracked source file clean), uploads the code, and updates your live deployment!*
+
+3. **Deploy with Custom Message / Overrides:**
+   ```bash
+   npm run deploy -- -m "Added multi-language support"
+   ```
+
+4. **Upload Code Only (Skip Deployment):**
+   ```bash
+   npm run push
+   ```
+
+---
+
+### Option B: Manual Updates via Web Browser
+
+If you prefer using the Apps Script browser editor:
+
+1. Open your project on [script.google.com](https://script.google.com/).
+2. Copy and paste your updated `Code.gs` and `Index.html`.
+3. Click **Deploy** > **Manage deployments**.
+4. Click the **Pencil (Edit)** icon on your deployment.
+5. Change **Version** to **New version**.
+6. Click **Deploy** (your live link and QR code will remain the same).
+

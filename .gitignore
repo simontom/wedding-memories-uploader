@@ -14,3 +14,13 @@ npm-debug.log
 
 # Google Apps Script Clasp
 .clasp.json
+.clasprc.json
+
+# Environment Configuration
+.env
+.env.local
+.env.*.local
+
+# Deployment Staging & Build
+.deploy_staging/
+dist/

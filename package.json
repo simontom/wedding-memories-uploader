@@ -1,0 +1,25 @@
+{
+  "name": "wedding-memories-uploader",
+  "version": "1.0.0",
+  "description": "A mobile-friendly, frictionless web application for guests to upload photos and videos directly into a shared Google Drive wedding folder without requiring any Google account sign-in.",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "node scripts/deploy.js",
+    "push": "node scripts/deploy.js --push-only",
+    "dry-run": "node scripts/deploy.js --dry-run",
+    "clasp": "clasp"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/simontom/wedding-memories-uploader.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/simontom/wedding-memories-uploader/issues"
+  },
+  "homepage": "https://github.com/simontom/wedding-memories-uploader#readme",
+  "devDependencies": {
+    "@google/clasp": "^3.4.1"
+  }
+}
