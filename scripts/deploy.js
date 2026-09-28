@@ -136,18 +136,20 @@ ${colors.bright}EXAMPLES:${colors.reset}
 
 // Find clasp executable (local node_modules or global)
 function getClaspCommand() {
-  const localClaspWin = path.join(PROJECT_ROOT, 'node_modules', '.bin', 'clasp.cmd');
-  const localClaspSh = path.join(PROJECT_ROOT, 'node_modules', '.bin', 'clasp');
-
-  if (process.platform === 'win32' && fs.existsSync(localClaspWin)) {
-    return localClaspWin;
+  try {
+    const claspEntry = require.resolve('@google/clasp');
+    return {
+      exec: process.execPath,
+      baseArgs: [claspEntry],
+      display: 'clasp'
+    };
+  } catch (e) {
+    return {
+      exec: 'npx',
+      baseArgs: ['clasp'],
+      display: 'npx clasp'
+    };
   }
-  if (fs.existsSync(localClaspSh)) {
-    return localClaspSh;
-  }
-
-  // Fallback to npx clasp
-  return 'npx clasp';
 }
 
 function checkClaspLogin() {
@@ -156,14 +158,13 @@ function checkClaspLogin() {
   return fs.existsSync(claspRc);
 }
 
-function runCommand(command, args, cwd) {
-  let fullCmd;
-  if (command.startsWith('npx ')) {
-    fullCmd = `${command} ${args.map(a => `"${a}"`).join(' ')}`;
-    return spawnSync(fullCmd, { cwd, stdio: 'inherit', shell: true });
-  }
-
-  return spawnSync(command, args, { cwd, stdio: 'inherit', shell: true });
+function runCommand(claspInfo, args, cwd) {
+  const fullArgs = [...claspInfo.baseArgs, ...args];
+  return spawnSync(claspInfo.exec, fullArgs, {
+    cwd,
+    stdio: 'inherit',
+    shell: false
+  });
 }
 
 async function main() {
@@ -269,12 +270,12 @@ async function main() {
     if (cliArgs.dryRun) {
       log(`\n${colors.bright}${colors.yellow}[DRY-RUN MODE] Simulation only — no files pushed:${colors.reset}`);
       log(`  1. Injected Code.gs TARGET_FOLDER_ID: ${folderId}`);
-      log(`  2. Would execute: ${claspCmd} push --force`);
+      log(`  2. Would execute: ${claspCmd.display} push --force`);
       if (!cliArgs.pushOnly) {
         if (deploymentId) {
-          log(`  3. Would execute: ${claspCmd} deploy --deploymentId ${deploymentId} --description "${description}"`);
+          log(`  3. Would execute: ${claspCmd.display} deploy --deploymentId ${deploymentId} --description "${description}"`);
         } else {
-          log(`  3. Would execute: ${claspCmd} deploy --description "${description}"`);
+          log(`  3. Would execute: ${claspCmd.display} deploy --description "${description}"`);
         }
       }
       log(`\n${colors.green}✔ Dry run completed successfully.${colors.reset}\n`);
