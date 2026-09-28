@@ -1,0 +1,16 @@
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.swp
+
+# Node & Build tools
+node_modules/
+npm-debug.log
+
+# Google Apps Script Clasp
+.clasp.json
