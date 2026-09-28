@@ -131,6 +131,7 @@
       transition: all 0.25s ease;
       margin-bottom: 22px;
       position: relative;
+      overflow: hidden;
     }
 
     .dropzone.dragover {
@@ -143,6 +144,7 @@
       font-size: 2.8rem;
       margin-bottom: 10px;
       display: inline-block;
+      pointer-events: none;
     }
 
     .dropzone-text {
@@ -150,15 +152,24 @@
       font-weight: 500;
       color: var(--primary);
       margin-bottom: 4px;
+      pointer-events: none;
     }
 
     .dropzone-hint {
       font-size: 0.82rem;
       color: var(--text-muted);
+      pointer-events: none;
     }
 
     #fileInput {
-      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+      z-index: 10;
     }
 
     /* Preview List */
@@ -312,21 +323,17 @@
       text-align: center;
     }
 
-    /* Success & Error Banners */
-    .success-banner {
+    /* Success State */
+    .success-section {
       display: none;
-      background: var(--primary-light);
-      border: 1.5px solid var(--gold);
-      border-radius: 12px;
-      padding: 22px 18px;
-      margin-bottom: 22px;
+      padding: 18px 0 12px;
       text-align: center;
       animation: pop 0.4s ease;
     }
 
     .success-icon {
-      font-size: 2.8rem;
-      margin-bottom: 8px;
+      font-size: 3.2rem;
+      margin-bottom: 12px;
       display: inline-block;
       animation: pop 0.4s ease;
     }
@@ -387,22 +394,15 @@
     <div class="divider"></div>
     <p class="subtitle" id="i18nSubtitle">Děkujeme, že slavíte s námi! Klikněte níže a nahrajte fotky a videa z naší svatby.</p>
 
-    <!-- Inline Success Banner -->
-    <div class="success-banner" id="successBanner">
-      <div class="success-icon">✨💍✨</div>
-      <h2 id="i18nSuccessTitle" style="font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; margin-bottom: 6px;">Nahrávání dokončeno!</h2>
-      <p class="subtitle" id="i18nSuccessSubtitle" style="margin-bottom: 0;">Vaše fotky byly přidány přímo do našeho svatebního alba. Děkujeme, že s námi zachycujete náš výjimečný den!</p>
-    </div>
-
     <!-- Inline Error Banner -->
     <div class="error-banner" id="errorBanner"></div>
 
     <div id="uploadForm">
       <div class="dropzone" id="dropzone">
+        <input type="file" id="fileInput" multiple accept="image/*,video/*,.heic,.heif">
         <div class="dropzone-icon">📷</div>
         <div class="dropzone-text" id="i18nDropzoneText">Klikněte zde pro výběr vzpomínek</div>
         <div class="dropzone-hint" id="i18nDropzoneHint">Fotky a videa povoleny (lze vybrat více souborů)</div>
-        <input type="file" id="fileInput" multiple accept="image/*,video/*,.heic,.heif">
       </div>
 
       <div class="preview-container" id="previewContainer" style="display: none;">
@@ -426,6 +426,16 @@
         </div>
         <div class="status-text" id="statusText">Zahajování nahrávání...</div>
       </div>
+    </div>
+
+    <!-- Success Section -->
+    <div class="success-section" id="successSection" style="display: none;">
+      <div class="success-icon">✨💍✨</div>
+      <h2 id="i18nSuccessTitle" style="font-family: 'Cormorant Garamond', serif; font-size: 2rem; margin-bottom: 8px;">Nahrávání dokončeno!</h2>
+      <p class="subtitle" id="i18nSuccessSubtitle" style="margin-bottom: 24px;">Vaše fotky byly přidány přímo do našeho svatebního alba. Děkujeme, že s námi zachycujete náš výjimečný den!</p>
+      <button type="button" class="btn-submit" id="resetBtn">
+        Nahrát další vzpomínky
+      </button>
     </div>
   </div>
 
@@ -463,7 +473,7 @@
         sendingFile: (name) => `Odesílání: ${name}`,
         successTitle: 'Nahrávání dokončeno!',
         successSubtitle: 'Vaše fotky byly přidány přímo do našeho svatebního alba. Děkujeme, že s námi zachycujete náš výjimečný den!',
-        resetBtn: 'Nahrát další fotky',
+        resetBtn: 'Nahrát další vzpomínky',
         footer: 'Vytvořeno s láskou pro náš výjimečný den',
         oversizedAlert: (files) => `Následující soubory přesahují limit ${MAX_FILE_SIZE_MB}MB a byly přeskočeny:\n${files.join('\n')}`,
         errorAlert: (uploaded, failed) => `Dokončeno s několika problémy:\nÚspěšně nahráno: ${uploaded} souborů\nNezdařilo se:\n${failed.join('\n')}`
@@ -483,7 +493,7 @@
         sendingFile: (name) => `Sending: ${name}`,
         successTitle: 'Upload Complete!',
         successSubtitle: 'Your photos have been added directly to our wedding album. Thank you for capturing our special day!',
-        resetBtn: 'Upload More Photos',
+        resetBtn: 'Upload More Memories',
         footer: 'Made with love for our special day',
         oversizedAlert: (files) => `The following files exceed the ${MAX_FILE_SIZE_MB}MB limit and were skipped:\n${files.join('\n')}`,
         errorAlert: (uploaded, failed) => `Completed with some issues:\nUploaded: ${uploaded} files\nFailed:\n${failed.join('\n')}`
@@ -503,7 +513,7 @@
         sendingFile: (name) => `Enviando: ${name}`,
         successTitle: '¡Subida completada!',
         successSubtitle: 'Tus fotos se han añadido directamente a nuestro álbum de bodas. ¡Gracias por capturar nuestro día especial!',
-        resetBtn: 'Subir más fotos',
+        resetBtn: 'Subir más recuerdos',
         footer: 'Hecho con amor para nuestro día especial',
         oversizedAlert: (files) => `Los siguientes archivos superan el límite de ${MAX_FILE_SIZE_MB}MB y se han omitido:\n${files.join('\n')}`,
         errorAlert: (uploaded, failed) => `Completado con algunos problemas:\nSubidos: ${uploaded} archivos\nFallidos:\n${failed.join('\n')}`
@@ -523,7 +533,7 @@
         sendingFile: (name) => `Se trimite: ${name}`,
         successTitle: 'Încărcare finalizată!',
         successSubtitle: 'Fotografiile voastre au fost adăugate direct în albumul nostru de nuntă. Vă mulțumim că ați surprins această zi specială alături de noi!',
-        resetBtn: 'Încărcați mai multe fotografii',
+        resetBtn: 'Încărcați mai multe amintiri',
         footer: 'Creat cu dragoste pentru ziua noastră specială',
         oversizedAlert: (files) => `Următoarele fișiere depășesc limita de ${MAX_FILE_SIZE_MB}MB și au fost omise:\n${files.join('\n')}`,
         errorAlert: (uploaded, failed) => `Finalizat cu unele probleme:\nÎncărcate cu succes: ${uploaded} fișiere\nEșuate:\n${failed.join('\n')}`
