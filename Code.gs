@@ -11,7 +11,7 @@ const TARGET_FOLDER_ID = 'YOUR-GOOGLE-DRIVE-FOLDER-ID';
  */
 function doGet(e) {
   return HtmlService.createHtmlOutputFromFile('Index')
-    .setTitle('Wedding Memories - Photo Upload')
+    .setTitle('Svatební vzpomínky - Nahrávání fotek')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1, maximum-scale=1')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }

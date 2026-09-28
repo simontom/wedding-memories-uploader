@@ -18,6 +18,7 @@ A mobile-friendly, frictionless web application for guests to upload photos and 
 - **Multi-File Selection:** Guests can pick multiple photos/videos from their camera roll simultaneously.
 - **Upload Progress:** Real-time progress bar showing the upload percentage and current file.
 - **Apple HEIC & Video Support:** Accepts `.jpg`, `.png`, `.heic`, `.heif`, and standard mobile video formats.
+- **Multi-Language Support (Per-Device):** Supports **Czech (default)**, **English**, and **Spanish**. Remembers the guest's choice in browser `localStorage` and automatically detects phone language on first visit.
 
 ---
 

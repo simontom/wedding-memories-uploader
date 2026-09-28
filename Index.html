@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="cs">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>Share Your Wedding Memories</title>
+  <title>Vzpomínky na naši svatbu</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -50,8 +50,43 @@
       border-radius: var(--radius);
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
       border: 1px solid var(--border);
-      padding: 36px 28px;
+      padding: 32px 28px 36px;
       text-align: center;
+      position: relative;
+    }
+
+    /* Language Switcher */
+    .lang-switcher {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 22px;
+    }
+
+    .lang-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .lang-btn:hover {
+      border-color: var(--gold);
+      color: var(--text);
+    }
+
+    .lang-btn.active {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(197, 160, 89, 0.35);
     }
 
     .monogram {
@@ -321,59 +356,142 @@
 <body>
 
   <div class="container">
+    <!-- Language Switcher -->
+    <div class="lang-switcher" id="langSwitcher" role="group" aria-label="Language selector">
+      <button type="button" class="lang-btn" data-lang="cs">CZ</button>
+      <button type="button" class="lang-btn" data-lang="en">EN</button>
+      <button type="button" class="lang-btn" data-lang="es">ES</button>
+    </div>
+
     <div class="monogram">✦ Alenka & Šimonek ✦</div>
-    <h1>Share Your Moments</h1>
+    <h1 id="i18nTitle">Podělte se o své vzpomínky</h1>
     <div class="divider"></div>
-    <p class="subtitle">Thank you for celebrating with us! Tap below to upload photos and videos from our wedding.</p>
+    <p class="subtitle" id="i18nSubtitle">Děkujeme, že slavíte s námi! Klikněte níže a nahrajte fotky a videa z naší svatby.</p>
 
     <div id="uploadForm">
       <div class="dropzone" id="dropzone">
         <div class="dropzone-icon">📷</div>
-        <div class="dropzone-text">Tap here to choose memories</div>
-        <div class="dropzone-hint">Photos & videos accepted (Multiple files allowed)</div>
+        <div class="dropzone-text" id="i18nDropzoneText">Klikněte zde pro výběr vzpomínek</div>
+        <div class="dropzone-hint" id="i18nDropzoneHint">Fotky a videa povoleny (lze vybrat více souborů)</div>
         <input type="file" id="fileInput" multiple accept="image/*,video/*,.heic,.heif">
       </div>
 
       <div class="preview-container" id="previewContainer" style="display: none;">
         <div class="preview-header">
-          <span id="previewCount">0 files selected</span>
+          <span id="previewCount">0 vybraných souborů</span>
         </div>
         <div class="preview-grid" id="previewGrid"></div>
       </div>
 
       <button type="button" class="btn-submit" id="submitBtn" disabled>
-        Upload Memories
+        Vyberte fotky k nahrání
       </button>
 
       <div class="progress-section" id="progressSection">
         <div class="progress-info">
-          <span id="progressStep">Uploading...</span>
+          <span id="progressStep">Nahrávání...</span>
           <span id="progressPercent">0%</span>
         </div>
         <div class="progress-bar-bg">
           <div class="progress-bar-fill" id="progressBar"></div>
         </div>
-        <div class="status-text" id="statusText">Starting upload...</div>
+        <div class="status-text" id="statusText">Zahajování nahrávání...</div>
       </div>
     </div>
 
     <div class="success-section" id="successSection">
       <div class="success-icon">✨💍✨</div>
-      <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 2rem; margin-bottom: 10px;">Upload Complete!</h2>
-      <p class="subtitle" style="margin-bottom: 16px;">Your photos have been added directly to our wedding album. Thank
-        you for capturing our special day!</p>
-      <button class="btn-reset" id="resetBtn">Upload More Photos</button>
+      <h2 id="i18nSuccessTitle" style="font-family: 'Cormorant Garamond', serif; font-size: 2rem; margin-bottom: 10px;">Nahrávání dokončeno!</h2>
+      <p class="subtitle" id="i18nSuccessSubtitle" style="margin-bottom: 16px;">Vaše fotky byly přidány přímo do našeho svatebního alba. Děkujeme, že s námi zachycujete náš výjimečný den!</p>
+      <button class="btn-reset" id="resetBtn">Nahrát další fotky</button>
     </div>
   </div>
 
-  <footer>
-    Made with love for our special day
+  <footer id="i18nFooter">
+    Vytvořeno s láskou pro náš výjimečný den
   </footer>
 
   <script>
-    let selectedFiles = [];
     const MAX_FILE_SIZE_MB = 35;
+    const STORAGE_KEY = 'wedding_uploader_lang';
+    const SUPPORTED_LANGS = ['cs', 'en', 'es'];
+    const DEFAULT_LANG = 'cs';
 
+    const TRANSLATIONS = {
+      cs: {
+        pageTitle: 'Vzpomínky na naši svatbu',
+        title: 'Podělte se o své vzpomínky',
+        subtitle: 'Děkujeme, že slavíte s námi! Klikněte níže a nahrajte fotky a videa z naší svatby.',
+        dropzoneText: 'Klikněte zde pro výběr vzpomínek',
+        dropzoneHint: 'Fotky a videa povoleny (lze vybrat více souborů)',
+        choosePhotos: 'Vyberte fotky k nahrání',
+        filesSelected: (n) => {
+          if (n === 1) return '1 vybraný soubor';
+          if (n >= 2 && n <= 4) return `${n} vybrané soubory`;
+          return `${n} vybraných souborů`;
+        },
+        uploadBtn: (n) => {
+          if (n === 1) return 'Nahrát 1 vzpomínku';
+          if (n >= 2 && n <= 4) return `Nahrát ${n} vzpomínky`;
+          return `Nahrát ${n} vzpomínek`;
+        },
+        removePhoto: 'Odebrat fotku',
+        uploadingStep: (current, total) => `Nahrávání ${current} z ${total}`,
+        startingUpload: 'Zahajování nahrávání...',
+        sendingFile: (name) => `Odesílání: ${name}`,
+        successTitle: 'Nahrávání dokončeno!',
+        successSubtitle: 'Vaše fotky byly přidány přímo do našeho svatebního alba. Děkujeme, že s námi zachycujete náš výjimečný den!',
+        resetBtn: 'Nahrát další fotky',
+        footer: 'Vytvořeno s láskou pro náš výjimečný den',
+        oversizedAlert: (files) => `Následující soubory přesahují limit ${MAX_FILE_SIZE_MB}MB a byly přeskočeny:\n${files.join('\n')}`,
+        errorAlert: (uploaded, failed) => `Dokončeno s několika problémy:\nÚspěšně nahráno: ${uploaded} souborů\nNezdařilo se:\n${failed.join('\n')}`
+      },
+      en: {
+        pageTitle: 'Wedding Memories - Photo Upload',
+        title: 'Share Your Moments',
+        subtitle: 'Thank you for celebrating with us! Tap below to upload photos and videos from our wedding.',
+        dropzoneText: 'Tap here to choose memories',
+        dropzoneHint: 'Photos & videos accepted (Multiple files allowed)',
+        choosePhotos: 'Choose Photos to Upload',
+        filesSelected: (n) => `${n} ${n === 1 ? 'file selected' : 'files selected'}`,
+        uploadBtn: (n) => `Upload ${n} ${n === 1 ? 'Memory' : 'Memories'}`,
+        removePhoto: 'Remove photo',
+        uploadingStep: (current, total) => `Uploading ${current} of ${total}`,
+        startingUpload: 'Starting upload...',
+        sendingFile: (name) => `Sending: ${name}`,
+        successTitle: 'Upload Complete!',
+        successSubtitle: 'Your photos have been added directly to our wedding album. Thank you for capturing our special day!',
+        resetBtn: 'Upload More Photos',
+        footer: 'Made with love for our special day',
+        oversizedAlert: (files) => `The following files exceed the ${MAX_FILE_SIZE_MB}MB limit and were skipped:\n${files.join('\n')}`,
+        errorAlert: (uploaded, failed) => `Completed with some issues:\nUploaded: ${uploaded} files\nFailed:\n${failed.join('\n')}`
+      },
+      es: {
+        pageTitle: 'Recuerdos de la boda - Subir fotos',
+        title: 'Comparte tus recuerdos',
+        subtitle: '¡Gracias por celebrar con nosotros! Toca abajo para subir fotos y videos de nuestra boda.',
+        dropzoneText: 'Toca aquí para elegir recuerdos',
+        dropzoneHint: 'Se aceptan fotos y videos (múltiples archivos permitidos)',
+        choosePhotos: 'Elegir fotos para subir',
+        filesSelected: (n) => `${n} ${n === 1 ? 'archivo seleccionado' : 'archivos seleccionados'}`,
+        uploadBtn: (n) => `Subir ${n} ${n === 1 ? 'recuerdo' : 'recuerdos'}`,
+        removePhoto: 'Eliminar foto',
+        uploadingStep: (current, total) => `Subiendo ${current} de ${total}`,
+        startingUpload: 'Iniciando subida...',
+        sendingFile: (name) => `Enviando: ${name}`,
+        successTitle: '¡Subida completada!',
+        successSubtitle: 'Tus fotos se han añadido directamente a nuestro álbum de bodas. ¡Gracias por capturar nuestro día especial!',
+        resetBtn: 'Subir más fotos',
+        footer: 'Hecho con amor para nuestro día especial',
+        oversizedAlert: (files) => `Los siguientes archivos superan el límite de ${MAX_FILE_SIZE_MB}MB y se han omitido:\n${files.join('\n')}`,
+        errorAlert: (uploaded, failed) => `Completado con algunos problemas:\nSubidos: ${uploaded} archivos\nFallidos:\n${failed.join('\n')}`
+      }
+    };
+
+    let currentLang = DEFAULT_LANG;
+    let selectedFiles = [];
+
+    // DOM Elements
     const dropzone = document.getElementById('dropzone');
     const fileInput = document.getElementById('fileInput');
     const previewContainer = document.getElementById('previewContainer');
@@ -389,6 +507,72 @@
     const successSection = document.getElementById('successSection');
     const resetBtn = document.getElementById('resetBtn');
 
+    // i18n DOM Elements
+    const i18nTitle = document.getElementById('i18nTitle');
+    const i18nSubtitle = document.getElementById('i18nSubtitle');
+    const i18nDropzoneText = document.getElementById('i18nDropzoneText');
+    const i18nDropzoneHint = document.getElementById('i18nDropzoneHint');
+    const i18nSuccessTitle = document.getElementById('i18nSuccessTitle');
+    const i18nSuccessSubtitle = document.getElementById('i18nSuccessSubtitle');
+    const i18nFooter = document.getElementById('i18nFooter');
+    const langBtns = document.querySelectorAll('.lang-btn');
+
+    function getInitialLanguage() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved && SUPPORTED_LANGS.includes(saved)) {
+          return saved;
+        }
+      } catch (e) {
+        // localStorage may be restricted in some iframe contexts
+      }
+
+      // Detect browser language with Czech as default
+      const browserLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
+      if (browserLang.startsWith('es')) return 'es';
+      if (browserLang.startsWith('en')) return 'en';
+      return DEFAULT_LANG;
+    }
+
+    function setLanguage(lang) {
+      if (!SUPPORTED_LANGS.includes(lang)) lang = DEFAULT_LANG;
+      currentLang = lang;
+
+      try {
+        localStorage.setItem(STORAGE_KEY, lang);
+      } catch (e) {
+        // Safe fallback if storage blocked
+      }
+
+      document.documentElement.lang = lang;
+      const t = TRANSLATIONS[lang];
+      document.title = t.pageTitle;
+      i18nTitle.textContent = t.title;
+      i18nSubtitle.textContent = t.subtitle;
+      i18nDropzoneText.textContent = t.dropzoneText;
+      i18nDropzoneHint.textContent = t.dropzoneHint;
+      i18nSuccessTitle.textContent = t.successTitle;
+      i18nSuccessSubtitle.textContent = t.successSubtitle;
+      resetBtn.textContent = t.resetBtn;
+      i18nFooter.textContent = t.footer;
+
+      langBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+      });
+
+      renderPreviews();
+    }
+
+    langBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        setLanguage(btn.dataset.lang);
+      });
+    });
+
+    // Initialize Language
+    setLanguage(getInitialLanguage());
+
+    // Drag and drop handlers
     dropzone.addEventListener('click', () => fileInput.click());
 
     ['dragenter', 'dragover'].forEach(eventName => {
@@ -418,6 +602,7 @@
     });
 
     function handleNewFiles(fileList) {
+      const t = TRANSLATIONS[currentLang];
       let oversizedFiles = [];
       for (let i = 0; i < fileList.length; i++) {
         const file = fileList[i];
@@ -429,25 +614,27 @@
       }
 
       if (oversizedFiles.length > 0) {
-        alert("The following files exceed the " + MAX_FILE_SIZE_MB + "MB limit and were skipped:\n" + oversizedFiles.join("\n"));
+        alert(t.oversizedAlert(oversizedFiles));
       }
 
       renderPreviews();
     }
 
     function renderPreviews() {
+      const t = TRANSLATIONS[currentLang];
       previewGrid.innerHTML = '';
+
       if (selectedFiles.length === 0) {
         previewContainer.style.display = 'none';
         submitBtn.disabled = true;
-        submitBtn.textContent = 'Choose Photos to Upload';
+        submitBtn.textContent = t.choosePhotos;
         return;
       }
 
       previewContainer.style.display = 'block';
-      previewCount.textContent = selectedFiles.length + (selectedFiles.length === 1 ? ' file selected' : ' files selected');
+      previewCount.textContent = t.filesSelected(selectedFiles.length);
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Upload ' + selectedFiles.length + (selectedFiles.length === 1 ? ' Photo' : ' Photos');
+      submitBtn.textContent = t.uploadBtn(selectedFiles.length);
 
       selectedFiles.forEach((file, index) => {
         const card = document.createElement('div');
@@ -456,7 +643,7 @@
         const removeBtn = document.createElement('button');
         removeBtn.className = 'remove-btn';
         removeBtn.innerHTML = '&times;';
-        removeBtn.title = 'Remove photo';
+        removeBtn.title = t.removePhoto;
         removeBtn.addEventListener('click', (e) => {
           e.stopPropagation();
           selectedFiles.splice(index, 1);
@@ -499,6 +686,7 @@
     submitBtn.addEventListener('click', async () => {
       if (selectedFiles.length === 0) return;
 
+      const t = TRANSLATIONS[currentLang];
       submitBtn.disabled = true;
       dropzone.style.pointerEvents = 'none';
       progressSection.style.display = 'block';
@@ -511,8 +699,8 @@
         const file = selectedFiles[i];
         const stepNum = i + 1;
 
-        progressStep.textContent = 'Uploading ' + stepNum + ' of ' + total;
-        statusText.textContent = 'Sending: ' + file.name;
+        progressStep.textContent = t.uploadingStep(stepNum, total);
+        statusText.textContent = t.sendingFile(file.name);
 
         try {
           const fileData = await fileToBase64(file);
@@ -524,7 +712,7 @@
                   uploadedCount++;
                   resolve(response);
                 } else {
-                  failedFiles.push(file.name + ' (' + (response.error || 'Unknown error') + ')');
+                  failedFiles.push(file.name + ' (' + (response.error || 'Error') + ')');
                   resolve(response);
                 }
               })
@@ -544,7 +732,7 @@
       }
 
       if (failedFiles.length > 0) {
-        alert("Completed with some issues:\nUploaded: " + uploadedCount + " files\nFailed:\n" + failedFiles.join("\n"));
+        alert(t.errorAlert(uploadedCount, failedFiles));
       }
 
       uploadForm.style.display = 'none';
