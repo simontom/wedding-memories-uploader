@@ -287,8 +287,22 @@
     .progress-bar-fill {
       width: 0%;
       height: 100%;
-      background: linear-gradient(90deg, var(--gold), var(--primary));
-      transition: width 0.3s ease;
+      background: linear-gradient(90deg, var(--gold), var(--primary), var(--gold));
+      background-size: 200% 100%;
+      transition: width 0.25s ease;
+    }
+
+    .progress-bar-fill.active {
+      animation: progressShimmer 2s infinite linear;
+    }
+
+    @keyframes progressShimmer {
+      0% {
+        background-position: 200% 0;
+      }
+      100% {
+        background-position: -200% 0;
+      }
     }
 
     .status-text {
@@ -298,15 +312,21 @@
       text-align: center;
     }
 
-    /* Success State */
-    .success-section {
+    /* Success & Error Banners */
+    .success-banner {
       display: none;
-      padding: 24px 0 10px;
+      background: var(--primary-light);
+      border: 1.5px solid var(--gold);
+      border-radius: 12px;
+      padding: 22px 18px;
+      margin-bottom: 22px;
+      text-align: center;
+      animation: pop 0.4s ease;
     }
 
     .success-icon {
-      font-size: 3.5rem;
-      margin-bottom: 16px;
+      font-size: 2.8rem;
+      margin-bottom: 8px;
       display: inline-block;
       animation: pop 0.4s ease;
     }
@@ -318,7 +338,7 @@
       }
 
       80% {
-        transform: scale(1.15);
+        transform: scale(1.12);
       }
 
       100% {
@@ -327,21 +347,19 @@
       }
     }
 
-    .btn-reset {
-      margin-top: 20px;
-      background: transparent;
-      border: 1.5px solid var(--primary);
-      color: var(--primary);
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background 0.2s ease;
-    }
-
-    .btn-reset:hover {
-      background: var(--primary-light);
+    .error-banner {
+      display: none;
+      background: #fdf2f2;
+      border: 1.5px solid #f28b82;
+      color: #c5221f;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+      font-size: 0.85rem;
+      text-align: left;
+      line-height: 1.45;
+      white-space: pre-line;
+      animation: pop 0.3s ease;
     }
 
     footer {
@@ -369,6 +387,16 @@
     <div class="divider"></div>
     <p class="subtitle" id="i18nSubtitle">Děkujeme, že slavíte s námi! Klikněte níže a nahrajte fotky a videa z naší svatby.</p>
 
+    <!-- Inline Success Banner -->
+    <div class="success-banner" id="successBanner">
+      <div class="success-icon">✨💍✨</div>
+      <h2 id="i18nSuccessTitle" style="font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; margin-bottom: 6px;">Nahrávání dokončeno!</h2>
+      <p class="subtitle" id="i18nSuccessSubtitle" style="margin-bottom: 0;">Vaše fotky byly přidány přímo do našeho svatebního alba. Děkujeme, že s námi zachycujete náš výjimečný den!</p>
+    </div>
+
+    <!-- Inline Error Banner -->
+    <div class="error-banner" id="errorBanner"></div>
+
     <div id="uploadForm">
       <div class="dropzone" id="dropzone">
         <div class="dropzone-icon">📷</div>
@@ -384,8 +412,8 @@
         <div class="preview-grid" id="previewGrid"></div>
       </div>
 
-      <button type="button" class="btn-submit" id="submitBtn" disabled>
-        Vyberte fotky k nahrání
+      <button type="button" class="btn-submit" id="submitBtn">
+        Nahrajte vzpomínky
       </button>
 
       <div class="progress-section" id="progressSection">
@@ -398,13 +426,6 @@
         </div>
         <div class="status-text" id="statusText">Zahajování nahrávání...</div>
       </div>
-    </div>
-
-    <div class="success-section" id="successSection">
-      <div class="success-icon">✨💍✨</div>
-      <h2 id="i18nSuccessTitle" style="font-family: 'Cormorant Garamond', serif; font-size: 2rem; margin-bottom: 10px;">Nahrávání dokončeno!</h2>
-      <p class="subtitle" id="i18nSuccessSubtitle" style="margin-bottom: 16px;">Vaše fotky byly přidány přímo do našeho svatebního alba. Děkujeme, že s námi zachycujete náš výjimečný den!</p>
-      <button class="btn-reset" id="resetBtn">Nahrát další fotky</button>
     </div>
   </div>
 
@@ -425,7 +446,7 @@
         subtitle: 'Děkujeme, že slavíte s námi! Klikněte níže a nahrajte fotky a videa z naší svatby.',
         dropzoneText: 'Klikněte zde pro výběr vzpomínek',
         dropzoneHint: 'Fotky a videa povoleny (lze vybrat více souborů)',
-        choosePhotos: 'Vyberte fotky k nahrání',
+        choosePhotos: 'Nahrajte vzpomínky',
         filesSelected: (n) => {
           if (n === 1) return '1 vybraný soubor';
           if (n >= 2 && n <= 4) return `${n} vybrané soubory`;
@@ -453,7 +474,7 @@
         subtitle: 'Thank you for celebrating with us! Tap below to upload photos and videos from our wedding.',
         dropzoneText: 'Tap here to choose memories',
         dropzoneHint: 'Photos & videos accepted (Multiple files allowed)',
-        choosePhotos: 'Choose Photos to Upload',
+        choosePhotos: 'Upload Memories',
         filesSelected: (n) => `${n} ${n === 1 ? 'file selected' : 'files selected'}`,
         uploadBtn: (n) => `Upload ${n} ${n === 1 ? 'Memory' : 'Memories'}`,
         removePhoto: 'Remove photo',
@@ -473,7 +494,7 @@
         subtitle: '¡Gracias por celebrar con nosotros! Toca abajo para subir fotos y videos de nuestra boda.',
         dropzoneText: 'Toca aquí para elegir recuerdos',
         dropzoneHint: 'Se aceptan fotos y videos (múltiples archivos permitidos)',
-        choosePhotos: 'Elegir fotos para subir',
+        choosePhotos: 'Subir recuerdos',
         filesSelected: (n) => `${n} ${n === 1 ? 'archivo seleccionado' : 'archivos seleccionados'}`,
         uploadBtn: (n) => `Subir ${n} ${n === 1 ? 'recuerdo' : 'recuerdos'}`,
         removePhoto: 'Eliminar foto',
@@ -493,7 +514,7 @@
         subtitle: 'Vă mulțumim că sărbătoriți alături de noi! Apăsați mai jos pentru a încărca fotografii și videoclipuri de la nunta noastră.',
         dropzoneText: 'Apăsați aici pentru a alege amintiri',
         dropzoneHint: 'Fotografii și videoclipuri permise (se pot selecta mai multe fișiere)',
-        choosePhotos: 'Alegeți fotografii pentru încărcare',
+        choosePhotos: 'Încărcați amintiri',
         filesSelected: (n) => `${n} ${n === 1 ? 'fișier selectat' : (n % 100 >= 1 && n % 100 <= 19 ? 'fișiere selectate' : 'de fișiere selectate')}`,
         uploadBtn: (n) => `${n === 1 ? 'Încărcați 1 amintire' : (n % 100 >= 1 && n % 100 <= 19 ? `Încărcați ${n} amintiri` : `Încărcați ${n} de amintiri`)}`,
         removePhoto: 'Șterge fotografia',
@@ -525,8 +546,8 @@
     const progressStep = document.getElementById('progressStep');
     const progressPercent = document.getElementById('progressPercent');
     const statusText = document.getElementById('statusText');
-    const successSection = document.getElementById('successSection');
-    const resetBtn = document.getElementById('resetBtn');
+    const successBanner = document.getElementById('successBanner');
+    const errorBanner = document.getElementById('errorBanner');
 
     // i18n DOM Elements
     const i18nTitle = document.getElementById('i18nTitle');
@@ -575,7 +596,6 @@
       i18nDropzoneHint.textContent = t.dropzoneHint;
       i18nSuccessTitle.textContent = t.successTitle;
       i18nSuccessSubtitle.textContent = t.successSubtitle;
-      resetBtn.textContent = t.resetBtn;
       i18nFooter.textContent = t.footer;
 
       langBtns.forEach(btn => {
@@ -617,6 +637,10 @@
       }
     });
 
+    fileInput.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+
     fileInput.addEventListener('change', () => {
       if (fileInput.files) {
         handleNewFiles(fileInput.files);
@@ -625,6 +649,9 @@
 
     function handleNewFiles(fileList) {
       const t = TRANSLATIONS[currentLang];
+      if (successBanner) successBanner.style.display = 'none';
+      if (errorBanner) errorBanner.style.display = 'none';
+
       let oversizedFiles = [];
       for (let i = 0; i < fileList.length; i++) {
         const file = fileList[i];
@@ -636,7 +663,8 @@
       }
 
       if (oversizedFiles.length > 0) {
-        alert(t.oversizedAlert(oversizedFiles));
+        errorBanner.textContent = t.oversizedAlert(oversizedFiles);
+        errorBanner.style.display = 'block';
       }
 
       renderPreviews();
@@ -648,7 +676,7 @@
 
       if (selectedFiles.length === 0) {
         previewContainer.style.display = 'none';
-        submitBtn.disabled = true;
+        submitBtn.disabled = false;
         submitBtn.textContent = t.choosePhotos;
         return;
       }
@@ -688,88 +716,276 @@
       });
     }
 
-    function fileToBase64(file) {
+    /**
+     * Optimizes photos client-side to ensure rapid upload through Google Apps Script
+     * without hitting the ~4.5MB RPC payload barrier.
+     */
+    function resetUploadFormState() {
+      const t = TRANSLATIONS[currentLang];
+      selectedFiles = [];
+      fileInput.value = '';
+      previewContainer.style.display = 'none';
+      previewGrid.innerHTML = '';
+      progressBar.classList.remove('active');
+      progressBar.style.width = '0%';
+      progressPercent.textContent = '0%';
+      progressStep.textContent = '';
+      statusText.textContent = '';
+      progressSection.style.display = 'none';
+      dropzone.style.pointerEvents = 'auto';
+      submitBtn.disabled = false;
+      submitBtn.textContent = t.choosePhotos;
+    }
+
+    /**
+     * Optimizes photos client-side to ensure rapid upload through Google Apps Script
+     * without hitting the ~4.5MB RPC payload barrier.
+     */
+    function optimizeImageIfNeeded(file) {
+      return new Promise((resolve) => {
+        // Skip non-images or formats that shouldn't be re-encoded
+        if (!file.type || !file.type.startsWith('image/') || file.type === 'image/gif' || file.type.includes('svg')) {
+          return resolve({ blob: file, fileName: file.name, mimeType: file.type || 'application/octet-stream' });
+        }
+
+        // Already lightweight? Keep original
+        if (file.size <= 1.2 * 1024 * 1024) {
+          return resolve({ blob: file, fileName: file.name, mimeType: file.type || 'image/jpeg' });
+        }
+
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+        let settled = false;
+
+        const cleanupAndResolve = (result) => {
+          if (settled) return;
+          settled = true;
+          clearTimeout(safetyTimer);
+          try { URL.revokeObjectURL(url); } catch (e) {}
+          resolve(result);
+        };
+
+        const safetyTimer = setTimeout(() => {
+          cleanupAndResolve({ blob: file, fileName: file.name, mimeType: file.type || 'image/jpeg' });
+        }, 8000);
+
+        img.onload = () => {
+          try {
+            const MAX_DIM = 2400; // 2400px provides pristine quality for prints and digital viewing
+            let width = img.naturalWidth || img.width;
+            let height = img.naturalHeight || img.height;
+
+            if (width > MAX_DIM || height > MAX_DIM) {
+              if (width > height) {
+                height = Math.round((height * MAX_DIM) / width);
+                width = MAX_DIM;
+              } else {
+                width = Math.round((width * MAX_DIM) / height);
+                height = MAX_DIM;
+              }
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            canvas.toBlob(
+              (blob) => {
+                if (blob && blob.size < file.size) {
+                  const nameWithoutExt = file.name.replace(/\.[^/.]+$/, '');
+                  cleanupAndResolve({ blob: blob, fileName: nameWithoutExt + '.jpg', mimeType: 'image/jpeg' });
+                } else {
+                  cleanupAndResolve({ blob: file, fileName: file.name, mimeType: file.type || 'image/jpeg' });
+                }
+              },
+              'image/jpeg',
+              0.86
+            );
+          } catch (e) {
+            cleanupAndResolve({ blob: file, fileName: file.name, mimeType: file.type || 'image/jpeg' });
+          }
+        };
+
+        img.onerror = () => {
+          cleanupAndResolve({ blob: file, fileName: file.name, mimeType: file.type || 'image/jpeg' });
+        };
+
+        img.src = url;
+      });
+    }
+
+    function fileToBase64(blob, fileName, mimeType) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => {
           const dataUrl = reader.result;
           const base64 = dataUrl.split(',')[1];
           resolve({
-            fileName: file.name,
-            mimeType: file.type || 'application/octet-stream',
+            fileName: fileName,
+            mimeType: mimeType,
             base64: base64
           });
         };
         reader.onerror = (err) => reject(err);
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(blob);
       });
     }
 
     submitBtn.addEventListener('click', async () => {
-      if (selectedFiles.length === 0) return;
+      // If no files selected yet, clicking the button triggers the file chooser
+      if (selectedFiles.length === 0) {
+        fileInput.click();
+        return;
+      }
 
       const t = TRANSLATIONS[currentLang];
       submitBtn.disabled = true;
       dropzone.style.pointerEvents = 'none';
+
+      // Reset progress state cleanly
+      progressBar.classList.add('active');
+      progressBar.style.width = '0%';
+      progressPercent.textContent = '0%';
+      progressStep.textContent = t.uploadingStep(1, selectedFiles.length);
+      statusText.textContent = t.startingUpload;
       progressSection.style.display = 'block';
 
       const total = selectedFiles.length;
       let uploadedCount = 0;
       let failedFiles = [];
 
-      for (let i = 0; i < total; i++) {
-        const file = selectedFiles[i];
-        const stepNum = i + 1;
+      let currentDisplayPercent = 0;
+      let progressTimer = null;
 
-        progressStep.textContent = t.uploadingStep(stepNum, total);
-        statusText.textContent = t.sendingFile(file.name);
+      function updateProgress(val) {
+        currentDisplayPercent = Math.max(currentDisplayPercent, Math.min(100, val));
+        const rounded = Math.round(currentDisplayPercent);
+        progressBar.style.width = rounded + '%';
+        progressPercent.textContent = rounded + '%';
+      }
 
-        try {
-          const fileData = await fileToBase64(file);
+      function startSubProgress(startPercent, targetPercent, maxDurationMs) {
+        if (progressTimer) clearInterval(progressTimer);
+        const startTime = Date.now();
+        updateProgress(startPercent);
 
-          await new Promise((resolve) => {
-            google.script.run
-              .withSuccessHandler((response) => {
-                if (response && response.success) {
-                  uploadedCount++;
-                  resolve(response);
-                } else {
-                  failedFiles.push(file.name + ' (' + (response.error || 'Error') + ')');
-                  resolve(response);
+        progressTimer = setInterval(() => {
+          const elapsed = Date.now() - startTime;
+          const factor = 1 - Math.exp(-elapsed / (maxDurationMs * 0.45));
+          const val = startPercent + (targetPercent - startPercent) * factor;
+          updateProgress(val);
+        }, 60);
+      }
+
+      function stopSubProgress() {
+        if (progressTimer) {
+          clearInterval(progressTimer);
+          progressTimer = null;
+        }
+      }
+
+      try {
+        for (let i = 0; i < total; i++) {
+          const file = selectedFiles[i];
+          const stepNum = i + 1;
+          const sliceStart = (i / total) * 100;
+          const sliceEnd = (stepNum / total) * 100;
+          const sliceSpan = sliceEnd - sliceStart;
+
+          progressStep.textContent = t.uploadingStep(stepNum, total);
+          statusText.textContent = t.sendingFile(file.name);
+
+          // Phase 1: Client optimization & base64 encoding (0% to 20% of slice)
+          startSubProgress(sliceStart, sliceStart + sliceSpan * 0.20, 500);
+          let fileData;
+          try {
+            const optimized = await optimizeImageIfNeeded(file);
+            fileData = await fileToBase64(optimized.blob, optimized.fileName, optimized.mimeType);
+          } catch (e) {
+            failedFiles.push(file.name + ' (' + e.message + ')');
+            stopSubProgress();
+            updateProgress(sliceEnd);
+            continue;
+          }
+
+          // Phase 2: Sending to Google Drive via Apps Script (20% to 90% of slice)
+          startSubProgress(sliceStart + sliceSpan * 0.20, sliceStart + sliceSpan * 0.90, 2500);
+
+          try {
+            await new Promise((resolve) => {
+              let settled = false;
+              const timeoutTimer = setTimeout(() => {
+                if (!settled) {
+                  settled = true;
+                  failedFiles.push(file.name + ' (Timeout serveru)');
+                  resolve(null);
                 }
-              })
-              .withFailureHandler((err) => {
+              }, 40000); // 40s safety timeout to prevent permanent lock
+
+              try {
+                google.script.run
+                  .withSuccessHandler((response) => {
+                    if (settled) return;
+                    settled = true;
+                    clearTimeout(timeoutTimer);
+                    if (response && response.success) {
+                      uploadedCount++;
+                    } else {
+                      const msg = (response && response.error) ? response.error : 'Chyba serveru';
+                      failedFiles.push(file.name + ' (' + msg + ')');
+                    }
+                    resolve(response);
+                  })
+                  .withFailureHandler((err) => {
+                    if (settled) return;
+                    settled = true;
+                    clearTimeout(timeoutTimer);
+                    failedFiles.push(file.name + ' (' + (err ? err.toString() : 'Chyba sítě') + ')');
+                    resolve(null);
+                  })
+                  .uploadFile(fileData);
+              } catch (err) {
+                if (settled) return;
+                settled = true;
+                clearTimeout(timeoutTimer);
                 failedFiles.push(file.name + ' (' + err.toString() + ')');
                 resolve(null);
-              })
-              .uploadFile(fileData);
-          });
-        } catch (e) {
-          failedFiles.push(file.name + ' (' + e.message + ')');
+              }
+            });
+          } catch (e) {
+            failedFiles.push(file.name + ' (' + e.message + ')');
+          }
+
+          // Phase 3: Complete this file's slice
+          stopSubProgress();
+          updateProgress(sliceEnd);
         }
 
-        const percent = Math.round((stepNum / total) * 100);
-        progressBar.style.width = percent + '%';
-        progressPercent.textContent = percent + '%';
+        stopSubProgress();
+        updateProgress(100);
+        progressBar.classList.remove('active');
+        statusText.textContent = t.successTitle;
+
+        // Brief pause so user can see 100% completion before resetting
+        await new Promise((resolve) => setTimeout(resolve, 600));
+      } finally {
+        stopSubProgress();
+        resetUploadFormState();
+      }
+
+      // Show inline success or error banners (non-blocking, iframe-safe)
+      if (uploadedCount > 0) {
+        successBanner.style.display = 'block';
+        successBanner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
 
       if (failedFiles.length > 0) {
-        alert(t.errorAlert(uploadedCount, failedFiles));
+        errorBanner.textContent = t.errorAlert(uploadedCount, failedFiles);
+        errorBanner.style.display = 'block';
+        errorBanner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
-
-      uploadForm.style.display = 'none';
-      successSection.style.display = 'block';
-    });
-
-    resetBtn.addEventListener('click', () => {
-      selectedFiles = [];
-      fileInput.value = '';
-      progressBar.style.width = '0%';
-      progressSection.style.display = 'none';
-      dropzone.style.pointerEvents = 'auto';
-      uploadForm.style.display = 'block';
-      successSection.style.display = 'none';
-      renderPreviews();
     });
   </script>
 </body>

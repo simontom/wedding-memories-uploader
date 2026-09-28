@@ -29,12 +29,13 @@ function generateUniqueFileName(originalName) {
   const uniqueHash = Utilities.getUuid().substring(0, 6);
 
   let extension = '';
-  let baseName = originalName || 'photo';
+  const safeName = (originalName && typeof originalName === 'string') ? originalName : 'photo.jpg';
+  let baseName = safeName;
 
-  const dotIndex = originalName.lastIndexOf('.');
+  const dotIndex = safeName.lastIndexOf('.');
   if (dotIndex !== -1) {
-    baseName = originalName.substring(0, dotIndex);
-    extension = originalName.substring(dotIndex);
+    baseName = safeName.substring(0, dotIndex);
+    extension = safeName.substring(dotIndex);
   }
 
   // Clean original base name and limit length to 30 characters
@@ -52,14 +53,24 @@ function generateUniqueFileName(originalName) {
  */
 function uploadFile(fileData) {
   try {
+    if (!fileData || !fileData.base64) {
+      return {
+        success: false,
+        fileName: 'unknown',
+        error: 'Chybí data souboru (No file data)'
+      };
+    }
+
     const folder = DriveApp.getFolderById(TARGET_FOLDER_ID);
 
     // Decode base64 file data
     const decodedBytes = Utilities.base64Decode(fileData.base64);
 
     // Generate unique filename
-    const uniqueFileName = generateUniqueFileName(fileData.fileName);
-    const blob = Utilities.newBlob(decodedBytes, fileData.mimeType, uniqueFileName);
+    const fileName = fileData.fileName || 'photo.jpg';
+    const mimeType = fileData.mimeType || 'image/jpeg';
+    const uniqueFileName = generateUniqueFileName(fileName);
+    const blob = Utilities.newBlob(decodedBytes, mimeType, uniqueFileName);
 
     // Save directly into the wedding folder
     const uploadedFile = folder.createFile(blob);
@@ -72,7 +83,7 @@ function uploadFile(fileData) {
   } catch (error) {
     return {
       success: false,
-      fileName: fileData.fileName,
+      fileName: fileData ? fileData.fileName : 'unknown',
       error: error.toString()
     };
   }
