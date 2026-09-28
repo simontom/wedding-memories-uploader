@@ -4,6 +4,9 @@ A mobile-friendly, frictionless web application for guests to upload photos and 
 
 - **Google Drive Target Folder:** [Wedding Photos Album](https://drive.google.com/drive/folders/YOUR-GOOGLE-DRIVE-FOLDER-ID) (`YOUR-GOOGLE-DRIVE-FOLDER-ID`)
 - **GitHub Repository:** [simontom/wedding-memories-uploader](https://github.com/simontom/wedding-memories-uploader)
+- **QR Code Generator:** [qr/generator](https://qrgenerator.cz/)
+
+<img height=350px src=".\page-look.png"/>
 
 ---
 
